@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  # Serveur PostgreSQL
+  db:
+    image: postgres:13
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_DB: wordpress
+      POSTGRES_USER: wp_user
+      POSTGRES_PASSWORD: wp_password
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - wp-network
+
+  # Serveur web Apache (WordPress)
+  wordpress:
+    image: wordpress:php8.0-apache
+    container_name: wordpress_app
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: db:5432
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wp_user
+      WORDPRESS_DB_PASSWORD: wp_password
+    volumes:
+      - ./wp-data:/var/www/html
+    ports:
+      - "8080:80"
+    networks:
+      - wp-network
+    depends_on:
+      - db
+
+volumes:
+  db-data:
+    driver: local
+
+networks:
+  wp-network:
+    driver: bridge
