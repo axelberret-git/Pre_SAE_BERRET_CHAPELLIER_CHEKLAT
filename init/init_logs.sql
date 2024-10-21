@@ -1,0 +1,6 @@
+CREATE DATABASE IF NOT EXISTS logs_database;
+
+CREATE TABLE IF NOT EXISTS logs_database.logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    log_text TEXT NOT NULL
+);

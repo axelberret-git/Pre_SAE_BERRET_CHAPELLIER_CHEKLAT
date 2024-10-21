@@ -10,9 +10,10 @@ services:
       MYSQL_DATABASE: wordpress
       MYSQL_USER: wp_user
       MYSQL_PASSWORD: wp_password
-      MYSQL_ROOT_PASSWORD: root_password # Optionnel
+      MYSQL_ROOT_PASSWORD: root
     volumes:
       - db-data:/var/lib/mysql
+      - ./init:/docker-entrypoint-initdb.d
     networks:
       - wp-network
 
@@ -22,7 +23,7 @@ services:
     container_name: wordpress_app
     restart: always
     environment:
-      WORDPRESS_DB_HOST: db:3306  # Changez le port pour MariaDB
+      WORDPRESS_DB_HOST: db:3306
       WORDPRESS_DB_NAME: wordpress
       WORDPRESS_DB_USER: wp_user
       WORDPRESS_DB_PASSWORD: wp_password
