@@ -1,17 +1,18 @@
 version: '3.8'
 
 services:
-  # Serveur PostgreSQL
+  # Serveur MariaDB
   db:
-    image: postgres:13
-    container_name: postgres_db
+    image: mariadb:10.5
+    container_name: mariadb_db
     restart: always
     environment:
-      POSTGRES_DB: wordpress
-      POSTGRES_USER: wp_user
-      POSTGRES_PASSWORD: wp_password
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wp_user
+      MYSQL_PASSWORD: wp_password
+      MYSQL_ROOT_PASSWORD: root_password # Optionnel
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - db-data:/var/lib/mysql
     networks:
       - wp-network
 
@@ -21,7 +22,7 @@ services:
     container_name: wordpress_app
     restart: always
     environment:
-      WORDPRESS_DB_HOST: db:5432
+      WORDPRESS_DB_HOST: db:3306  # Changez le port pour MariaDB
       WORDPRESS_DB_NAME: wordpress
       WORDPRESS_DB_USER: wp_user
       WORDPRESS_DB_PASSWORD: wp_password
