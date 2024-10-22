@@ -1,0 +1,21 @@
+# Dockerfile_log_collector
+
+FROM ruby:3.0
+
+# Mettre à jour le système et installer les dépendances
+RUN apt-get update && apt-get install -y \
+  build-essential \
+  && rm -rf /var/lib/apt/lists/*
+
+# Définir le répertoire de travail
+WORKDIR /usr/src/app
+
+# Copier les scripts Ruby dans le conteneur
+COPY ./scripts_rb/ .
+
+# Installer les gemmes nécessaires
+RUN gem install mysql2
+
+# Commande par défaut pour exécuter le script de collecte des logs
+CMD ["ruby", "collect_logs.rb"]
+

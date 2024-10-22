@@ -1,0 +1,24 @@
+# Dockerfile_log_storer
+
+FROM ruby:3.0
+
+# Mettre à jour le système et installer les dépendances
+RUN apt-get update && apt-get install -y \
+  build-essential \
+  && rm -rf /var/lib/apt/lists/*
+
+# Définir le répertoire de travail
+WORKDIR /usr/src/app
+
+# Copier les scripts Ruby dans le conteneur
+COPY ./scripts_rb/ .
+
+# Installer les gemmes nécessaires
+RUN gem install mysql2
+
+# Exposer le port 12345 pour que le conteneur log_storer écoute
+EXPOSE 12345
+
+# Commande par défaut pour exécuter le script de stockage des logs
+CMD ["ruby", "store_logs.rb"]
+

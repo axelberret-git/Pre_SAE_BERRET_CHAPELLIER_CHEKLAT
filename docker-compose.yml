@@ -1,4 +1,4 @@
-version: '3.8'
+name: pre-sae
 
 services:
   # Serveur MariaDB
@@ -13,9 +13,15 @@ services:
       MYSQL_ROOT_PASSWORD: root
     volumes:
       - db-data:/var/lib/mysql
-      - ./init:/docker-entrypoint-initdb.d
+      - ./init:/docker-entrypoint-initdb.d  # Monte le fichier init_logs.sql
+      - ./logs/mysql:/var/log/mysql         # Monte le dossier des logs MariaDB
     networks:
       - wp-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # Serveur web Apache (WordPress)
   wordpress:
@@ -28,13 +34,48 @@ services:
       WORDPRESS_DB_USER: wp_user
       WORDPRESS_DB_PASSWORD: wp_password
     volumes:
-      - ./wp-data:/var/www/html
+      - ./wp-data:/var/www/html             # Monte les données WordPress
+      - ./logs/apache:/var/log/apache2      # Monte le dossier des logs Apache
     ports:
       - "8080:80"
     networks:
       - wp-network
     depends_on:
       - db
+
+  # Service Ruby pour la collecte des logs
+  log_collector:
+    build:
+      context: .
+      dockerfile: Dockerfile_log_collector  # Le Dockerfile personnalisé
+    container_name: log_collector
+    volumes:
+      - ./scripts_rb:/usr/src/app  # Monte le dossier contenant le script Ruby
+      - ./logs/apache:/var/log/apache2  # Monte le dossier des logs Apache
+      - ./logs/mysql:/var/log/mysql     # Monte le dossier des logs MariaDB
+    working_dir: /usr/src/app
+    command: ruby collect_logs.rb  # Exécuter le script Ruby pour la collecte des logs
+    depends_on:
+      db:
+        condition: service_healthy  # Attendre que le service db soit healthy
+    networks:
+      - wp-network
+
+  # Service Ruby pour le stockage des logs
+  log_storer:
+    build:
+      context: .
+      dockerfile: Dockerfile_log_storer  # Le Dockerfile personnalisé
+    container_name: log_storer
+    volumes:
+      - ./scripts_rb:/usr/src/app  # Monte le dossier contenant le script Ruby
+    working_dir: /usr/src/app
+    command: ruby store_logs.rb  # Exécuter le script Ruby pour le stockage des logs
+    depends_on:
+      db:
+        condition: service_healthy  # Attendre que le service db soit healthy
+    networks:
+      - wp-network
 
 volumes:
   db-data:
@@ -43,3 +84,4 @@ volumes:
 networks:
   wp-network:
     driver: bridge
+
