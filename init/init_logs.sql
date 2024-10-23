@@ -10,3 +10,6 @@ CREATE TABLE IF NOT EXISTS logs (
     message TEXT
 );
 
+GRANT ALL PRIVILEGES ON logs_database.* TO 'wp_user'@'%';
+
+FLUSH PRIVILEGES;
