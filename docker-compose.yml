@@ -1,4 +1,4 @@
-name: pre-sae
+version: "3.8"
 
 services:
   # Serveur MariaDB
@@ -84,4 +84,3 @@ volumes:
 networks:
   wp-network:
     driver: bridge
-
