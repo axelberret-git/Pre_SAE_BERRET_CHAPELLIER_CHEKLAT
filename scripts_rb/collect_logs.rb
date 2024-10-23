@@ -14,7 +14,7 @@ def monitor_logs
   offsets = load_offsets
   LOG_FILES.each do |source, log_file|
     File.open(log_file, 'r') do |file|
-      file.seek(offsets[source].to_i, IO::SEEK_SET)  # Reprendre à l'offset enregistré
+      file.seek(offsets[source].to_i, IO::SEEK_SET)
       loop do
         changes = file.read
         unless changes.empty?
@@ -22,10 +22,10 @@ def monitor_logs
             # Envoyer chaque log au serveur de stockage
             send_log(source, line.strip)
           end
-          offsets[source] = file.pos  # Mise à jour de l'offset après lecture
+          offsets[source] = file.pos
           save_offsets(offsets)
         end
-        sleep 5  # Attente de 5 secondes avant de vérifier à nouveau
+        sleep 5
       end
     end
   end
@@ -33,7 +33,7 @@ end
 
 # Fonction pour envoyer un log à un serveur ou à un autre script
 def send_log(source, message)
-  socket = TCPSocket.new('log_storer', 12345)  # Changer l'adresse pour le nom du service dans docker-compose
+  socket = TCPSocket.new('log_storer', 12345)
   socket.puts("#{source}:#{message}")
   socket.close
 end
@@ -43,7 +43,7 @@ def load_offsets
   if File.exists?(OFFSET_FILE)
     File.readlines(OFFSET_FILE).map { |line| line.split(':') }.to_h
   else
-    Hash.new('0')  # Si le fichier n'existe pas, on commence à l'offset 0
+    Hash.new('0')
   end
 end
 
@@ -56,4 +56,3 @@ end
 
 # Lancer la surveillance des logs
 monitor_logs
-

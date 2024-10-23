@@ -13,8 +13,8 @@ services:
       MYSQL_ROOT_PASSWORD: root
     volumes:
       - db-data:/var/lib/mysql
-      - ./init:/docker-entrypoint-initdb.d  # Monte le fichier init_logs.sql
-      - ./logs/mysql:/var/log/mysql         # Monte le dossier des logs MariaDB
+      - ./init:/docker-entrypoint-initdb.d
+      - ./logs/mysql:/var/log/mysql
     networks:
       - wp-network
     healthcheck:
@@ -34,8 +34,8 @@ services:
       WORDPRESS_DB_USER: wp_user
       WORDPRESS_DB_PASSWORD: wp_password
     volumes:
-      - ./wp-data:/var/www/html             # Monte les données WordPress
-      - ./logs/apache:/var/log/apache2      # Monte le dossier des logs Apache
+      - ./wp-data:/var/www/html
+      - ./logs/apache:/var/log/apache2
     ports:
       - "8080:80"
     networks:
@@ -43,37 +43,44 @@ services:
     depends_on:
       - db
 
-  # Service Ruby pour la collecte des logs
-  log_collector:
-    build:
-      context: .
-      dockerfile: Dockerfile_log_collector  # Le Dockerfile personnalisé
-    container_name: log_collector
-    volumes:
-      - ./scripts_rb:/usr/src/app  # Monte le dossier contenant le script Ruby
-      - ./logs/apache:/var/log/apache2  # Monte le dossier des logs Apache
-      - ./logs/mysql:/var/log/mysql     # Monte le dossier des logs MariaDB
-    working_dir: /usr/src/app
-    command: ruby collect_logs.rb  # Exécuter le script Ruby pour la collecte des logs
-    depends_on:
-      db:
-        condition: service_healthy  # Attendre que le service db soit healthy
-    networks:
-      - wp-network
-
   # Service Ruby pour le stockage des logs
   log_storer:
     build:
       context: .
-      dockerfile: Dockerfile_log_storer  # Le Dockerfile personnalisé
+      dockerfile: Dockerfile_log_storer
     container_name: log_storer
     volumes:
-      - ./scripts_rb:/usr/src/app  # Monte le dossier contenant le script Ruby
+      - ./scripts_rb:/usr/src/app
     working_dir: /usr/src/app
-    command: ruby store_logs.rb  # Exécuter le script Ruby pour le stockage des logs
+    command: ruby store_logs.rb
     depends_on:
       db:
-        condition: service_healthy  # Attendre que le service db soit healthy
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "ruby", "-e", "require 'socket'; TCPSocket.new('localhost', 12345)"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - wp-network
+
+  # Service Ruby pour la collecte des logs
+  log_collector:
+    build:
+      context: .
+      dockerfile: Dockerfile_log_collector
+    container_name: log_collector
+    volumes:
+      - ./scripts_rb:/usr/src/app
+      - ./logs/apache:/var/log/apache2
+      - ./logs/mysql:/var/log/mysql
+    working_dir: /usr/src/app
+    command: ruby collect_logs.rb
+    depends_on:
+      log_storer:
+        condition: service_healthy
+      db:
+        condition: service_healthy
     networks:
       - wp-network
 
