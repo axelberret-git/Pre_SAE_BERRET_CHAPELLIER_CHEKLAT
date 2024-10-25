@@ -69,7 +69,7 @@ services:
     volumes:
       - ./scripts_rb:/usr/src/app
     working_dir: /usr/src/app
-    command: ruby store_logs.rb
+    command: ruby logs_store.rb
     depends_on:
       db:
         condition: service_healthy
@@ -94,7 +94,7 @@ services:
       - ./logs/apache:/var/log/apache2
       - ./logs/mysql:/var/log/mysql
     working_dir: /usr/src/app
-    command: ruby collect_logs.rb
+    command: ruby logs_collect.rb
     depends_on:
       log_storer:
         condition: service_healthy

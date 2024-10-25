@@ -3,8 +3,8 @@ require 'time'
 
 client = Mysql2::Client.new(
   host: 'localhost', 
-  username: 'root', 
-  password: 'root', 
+  username: 'wp_user', 
+  password: 'wp_password', 
   database: 'logs_database' 
 )
 

@@ -1,12 +1,10 @@
 require 'socket'
 
-# Chemins des fichiers de logs à surveiller
 LOG_FILES = {
   apache: '/var/log/apache2/access.log', 
   mariadb: '/var/log/mysql/error.log'
 }
 
-# Chemin pour le fichier de suivi des offsets
 OFFSET_FILE = '/usr/src/app/log_offsets.txt'
 
 def monitor_logs
@@ -34,14 +32,25 @@ def monitor_logs
   end
 end
 
-# Fonction pour envoyer un log à un serveur ou à un autre script
 def send_log(source, message)
-  socket = TCPSocket.new('log_storer', 12345)
-  socket.puts("#{source}:#{message}")
-  socket.close
+  retries = 5
+  begin
+    socket = TCPSocket.new('log_storer', 12345)
+    socket.puts("#{source}:#{message}")
+    socket.close
+  rescue Errno::ECONNREFUSED
+    retries -= 1
+    if retries > 0
+      sleep 1  # Attendre avant de réessayer
+      retry
+    else
+      puts "Impossible de se connecter à log_storer après plusieurs tentatives."
+    end
+  rescue Errno::EPIPE
+    puts "Le pipe a été cassé. Vérifiez que log_storer est en cours d'exécution."
+  end
 end
 
-# Chargement ou initialisation des offsets
 def load_offsets
   if File.exists?(OFFSET_FILE)
     File.readlines(OFFSET_FILE).map { |line| line.split(':') }.to_h
@@ -50,13 +59,10 @@ def load_offsets
   end
 end
 
-# Enregistrement des offsets
 def save_offsets(offsets)
   File.open(OFFSET_FILE, 'w') do |file|
     offsets.each { |source, offset| file.puts "#{source}:#{offset}" }
   end
 end
 
-# Lancer la surveillance des logs
 monitor_logs
-

@@ -23,5 +23,5 @@ RUN mkdir -p /var/log/mysql
 COPY my.cnf /etc/mysql/my.cnf
 
 # Commande par défaut pour exécuter le script de collecte des logs
-CMD ["ruby", "collect_logs.rb"]
+CMD ["ruby", "logs_collect.rb"]
 

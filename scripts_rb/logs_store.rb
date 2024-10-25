@@ -2,13 +2,11 @@ require 'mysql2'
 require 'time'
 require 'socket'
 
-# Configuration de la connexion à la base de données
-DB_HOST = 'db'  # Nom du service MariaDB
+DB_HOST = 'db'
 DB_NAME = 'logs_database'
 DB_USER = 'wp_user'
 DB_PASSWORD = 'wp_password'
 
-# Connexion à la base de données
 client = Mysql2::Client.new(
   host: DB_HOST,
   username: DB_USER,
@@ -16,35 +14,43 @@ client = Mysql2::Client.new(
   database: DB_NAME
 )
 
-# Fonction pour insérer un log dans la base de données
 def insert_log(client, timestamp, source, log_type, message)
   client.query("INSERT INTO logs (timestamp, source, log_type, message) VALUES ('#{timestamp}', '#{source}', '#{log_type}', '#{client.escape(message)}')")
 end
 
-# Fonction pour traiter les logs d'Apache
 def process_apache_log(client, message)
-  timestamp = Time.now.utc.strftime('%Y-%m-%d %H:%M:%S')
-  log_type = message.include?('ERROR') ? 'ERROR' : 'INFO'
-  insert_log(client, timestamp, 'apache', log_type, message)
+  # Extraction et conversion du timestamp
+  # Supposons que le format du log est standard
+  if message =~ /(\d+\.\d+\.\d+\.\d+) - - \[(.*?)\] "(.*?)" (.*?) (.*)/
+    ip = $1
+    timestamp_str = $2
+    request = $3
+    status_code = $4
+    response_size = $5
+
+    timestamp = Time.strptime(timestamp_str, '%d/%b/%Y:%H:%M:%S %z').strftime('%Y-%m-%d %H:%M:%S')
+    log_type = status_code.to_i >= 400 ? 'ERROR' : 'INFO' # Exemple de logique pour déterminer le type
+    insert_log(client, timestamp, 'apache', log_type, message)
+  else
+    puts "Format de log Apache non reconnu : #{message}"
+  end
 end
 
-# Fonction pour traiter les logs de MySQL
 def process_mysql_log(client, message)
   timestamp = Time.now.utc.strftime('%Y-%m-%d %H:%M:%S')
   log_type = message.include?('Warning') ? 'WARNING' : 'INFO'
   insert_log(client, timestamp, 'mariadb', log_type, message)
 end
 
-# Fonction pour écouter et traiter les logs entrants
 def listen_for_logs(client)
-  server = TCPServer.new('0.0.0.0', 12345)  # Écoute sur le même port que le script de collecte
+  server = TCPServer.new('0.0.0.0', 12345)
   loop do
     socket = server.accept
     data = socket.gets
     
-    if data # Vérifie que data n'est pas nil
+    if data
       data = data.chomp
-      source, message = data.split(':', 2)  # Séparer la source du message
+      source, message = data.split(':', 2) 
 
       case source
       when 'apache'
@@ -60,6 +66,4 @@ def listen_for_logs(client)
   end
 end
 
-# Lancer l'écoute des logs
 listen_for_logs(client)
-

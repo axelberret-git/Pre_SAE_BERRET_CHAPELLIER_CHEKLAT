@@ -20,5 +20,5 @@ RUN gem install mysql2
 EXPOSE 12345
 
 # Commande par défaut pour exécuter le script de stockage des logs
-CMD ["ruby", "store_logs.rb"]
+CMD ["ruby", "logs_store.rb"]
 
