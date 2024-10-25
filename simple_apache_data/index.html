@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Logs d'Anomalies</title>
+    <style>
+        /* Simple style pour la table */
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 8px; text-align: left; border: 1px solid #ddd; }
+        th { background-color: #f2f2f2; }
+        .filter { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Logs d'Anomalies</h1>
+
+    <div class="filter">
+        <form method="GET">
+            <label for="source">Source:</label>
+            <input type="text" name="source" placeholder="e.g., apache, mariadb">
+
+            <label for="log_type">Type de Log:</label>
+            <input type="text" name="log_type" placeholder="e.g., ERROR, INFO">
+
+            <label for="timestamp">Depuis:</label>
+            <input type="date" name="timestamp">
+
+            <button type="submit">Filtrer</button>
+        </form>
+    </div>
+
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Timestamp</th>
+            <th>Source</th>
+            <th>Type</th>
+            <th>Message</th>
+        </tr>
+
+        <?php
+        $host = 'db';
+        $username = 'wp_user';
+        $password = 'wp_password';
+        $database = 'logs_database';
+
+        $conn = new mysqli($host, $username, $password, $database);
+
+        if ($conn->connect_error) {
+            die("Erreur de connexion: " . $conn->connect_error);
+        }
+
+        $source = $_GET['source'] ?? '';
+        $log_type = $_GET['log_type'] ?? '';
+        $timestamp = $_GET['timestamp'] ?? '';
+
+        $sql = "SELECT * FROM logs WHERE 1=1";
+        if ($source) $sql .= " AND source LIKE '%$source%'";
+        if ($log_type) $sql .= " AND log_type = '$log_type'";
+        if ($timestamp) $sql .= " AND timestamp >= '$timestamp'";
+
+        $result = $conn->query($sql);
+
+        if ($result->num_rows > 0) {
+            while($row = $result->fetch_assoc()) {
+                echo "<tr>
+                        <td>{$row['id']}</td>
+                        <td>{$row['timestamp']}</td>
+                        <td>{$row['source']}</td>
+                        <td>{$row['log_type']}</td>
+                        <td>{$row['message']}</td>
+                    </tr>";
+            }
+        } else {
+            echo "<tr><td colspan='5'>Aucun log trouvé.</td></tr>";
+        }
+
+        $conn->close();
+        ?>
+    </table>
+</body>
+</html>

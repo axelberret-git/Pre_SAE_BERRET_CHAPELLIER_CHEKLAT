@@ -38,12 +38,25 @@ services:
       - ./wp-data:/var/www/html
       - ./logs/apache:/var/log/apache2
     ports:
-      - "8080:80"
+      - "8080:8080"
     networks:
       - wp-network
     depends_on:
       db:
         condition: service_healthy
+
+  # Service Apache pour servir l'interface web
+  apache:
+    image: php:8.0-apache
+    container_name: apache_simple
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./simple_apache_data:/var/www/html
+    networks:
+      - wp-network
+
 
   # Service Ruby pour le stockage des logs
   log_storer:
