@@ -5,7 +5,7 @@ services:
   db:
     build:
       context: .
-      dockerfile: Dockerfile_DB  # Chemin vers votre Dockerfile
+      dockerfile: Dockerfile_DB
     container_name: mariadb_db
     restart: always
     environment:
@@ -19,8 +19,6 @@ services:
       - ./init/init_logs.cnf:/etc/mysql/conf.d/init_logs.cnf
       - ./logs/mysql:/var/log/mysql
       - ./scripts_rb:/usr/src/app
-    working_dir: /usr/src/app
-
     networks:
       - wp-network
     healthcheck:
@@ -52,13 +50,13 @@ services:
 
   # Service Apache pour servir l'interface web
   apache:
-    image: php:8.0-apache
+    build:
+      context: .
+      dockerfile: Dockerfile_apache
     container_name: apache_simple
     restart: always
     ports:
       - "80:80"
-    volumes:
-      - ./simple_apache_data:/var/www/html
     networks:
       - wp-network
 
