@@ -4,23 +4,105 @@
     <meta charset="UTF-8">
     <title>Logs d'Anomalies</title>
     <style>
-        /* Simple style pour la table */
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 8px; text-align: left; border: 1px solid #ddd; }
-        th { background-color: #f2f2f2; }
-        .filter { margin-bottom: 20px; }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #4a90e2;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .filter {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        label {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        select, input[type="date"] {
+            padding: 5px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #4a90e2;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #357ab8;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            color: #333;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .error-log {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #ffdddd;
+            border: 1px solid #e0a8a8;
+            color: #a94442;
+            border-radius: 8px;
+        }
+        textarea[readonly] {
+            width: 100%;
+            height: 120px;
+            background-color: #f2f2f2;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            resize: none;
+            font-family: monospace;
+            color: #444;
+        }
     </style>
 </head>
 <body>
     <h1>Logs d'Anomalies</h1>
 
+    <!-- Formulaire de filtre -->
     <div class="filter">
         <form method="GET">
             <label for="source">Source:</label>
-            <input type="text" name="source" placeholder="e.g., apache, mariadb">
+            <select name="source">
+                <option value="">Toutes les sources</option>
+                <option value="apache">Apache (WordPress)</option>
+                <option value="mariadb">MariaDB</option>
+            </select>
 
             <label for="log_type">Type de Log:</label>
-            <input type="text" name="log_type" placeholder="e.g., ERROR, INFO">
+            <select name="log_type">
+                <option value="">Tous les logs</option>
+                <option value="500">Erreurs 500</option>
+                <option value="slow_query">Requêtes lentes</option>
+            </select>
 
             <label for="timestamp">Depuis:</label>
             <input type="date" name="timestamp">
@@ -29,6 +111,7 @@
         </form>
     </div>
 
+    <!-- Affichage des logs -->
     <table>
         <tr>
             <th>ID</th>
@@ -39,42 +122,44 @@
         </tr>
 
         <?php
-        $host = 'db';
-        $username = 'wp_user';
-        $password = 'wp_password';
-        $database = 'logs_database';
+        // Variables de connexion
+        $servername = "db";
+        $username = "wp_user";
+        $password = "wp_password";
+        $dbname = "logs_database";
 
-        $conn = new mysqli($host, $username, $password, $database);
+        // Créer une connexion
+        $conn = new mysqli($servername, $username, $password, $dbname);
 
+        // Si une erreur de connexion survient, la masquer et arrêter l'exécution
         if ($conn->connect_error) {
-            die("Erreur de connexion: " . $conn->connect_error);
+            exit;
         }
 
+        // Récupérer les paramètres de filtrage
         $source = $_GET['source'] ?? '';
         $log_type = $_GET['log_type'] ?? '';
         $timestamp = $_GET['timestamp'] ?? '';
 
+        // Construire la requête SQL avec les filtres
         $sql = "SELECT * FROM logs WHERE 1=1";
-        if ($source) $sql .= " AND source LIKE '%$source%'";
-        if ($log_type) $sql .= " AND log_type = '$log_type'";
-        if ($timestamp) $sql .= " AND timestamp >= '$timestamp'";
+        if ($source) $sql .= " AND source = '" . $conn->real_escape_string($source) . "'";
+        if ($log_type) $sql .= " AND log_type = '" . $conn->real_escape_string($log_type) . "'";
+        if ($timestamp) $sql .= " AND timestamp >= '" . $conn->real_escape_string($timestamp) . "'";
 
+        // Exécuter la requête
         $result = $conn->query($sql);
 
-        if ($result->num_rows > 0) {
+        // Afficher les résultats
+        if ($result && $result->num_rows > 0) {
             while($row = $result->fetch_assoc()) {
-                echo "<tr>
-                        <td>{$row['id']}</td>
-                        <td>{$row['timestamp']}</td>
-                        <td>{$row['source']}</td>
-                        <td>{$row['log_type']}</td>
-                        <td>{$row['message']}</td>
-                    </tr>";
+                echo "<tr><td>" . htmlspecialchars($row["id"]) . "</td><td>" . htmlspecialchars($row["timestamp"]) . "</td><td>" . htmlspecialchars($row["source"]) . "</td><td>" . htmlspecialchars($row["log_type"]) . "</td><td>" . htmlspecialchars($row["message"]) . "</td></tr>";
             }
         } else {
-            echo "<tr><td colspan='5'>Aucun log trouvé.</td></tr>";
+            echo "<tr><td colspan='5'>Aucun log trouvé</td></tr>";
         }
 
+        // Fermer la connexion
         $conn->close();
         ?>
     </table>
