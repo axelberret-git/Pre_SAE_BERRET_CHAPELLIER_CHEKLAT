@@ -23,7 +23,7 @@ end
 
 # Fonction pour écouter et traiter les logs entrants
 def listen_for_logs(client)
-  server = TCPServer.new(12345)  # Écoute sur le même port que le script de collecte
+  server = TCPServer.new('0.0.0.0', 12345)  # Écoute sur le même port que le script de collecte
   loop do
     socket = server.accept
     data = socket.gets

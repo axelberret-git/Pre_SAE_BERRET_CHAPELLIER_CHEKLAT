@@ -63,6 +63,8 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+    ports:
+      - "12345:12345"
     networks:
       - wp-network
 
