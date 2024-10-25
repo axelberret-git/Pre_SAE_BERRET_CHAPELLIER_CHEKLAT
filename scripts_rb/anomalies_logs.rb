@@ -2,9 +2,9 @@ require 'mysql2'
 require 'time'
 
 client = Mysql2::Client.new(
-  host: 'localhost',
-  username: 'wp_user', 
-  password: 'wp_password', 
+  host: 'localhost', 
+  username: 'root', 
+  password: 'root', 
   database: 'logs_database' 
 )
 
@@ -19,13 +19,14 @@ failed_attempts = Hash.new(0)
 error_500_timestamps = []
 
 File.open('logs_output.txt', 'w') do |file|
-   results.each do |row|
+  results.each do |row|
     message = row['message']
     timestamp = Time.parse(row['timestamp'].to_s)
     source = row['source']
 
     if match = message.match(/HTTP\/\d\.\d" (\d{3})/)
       http_code = match[1].to_i
+
 
       if http_code >= 400
         file.puts "ID: #{row['id']}, Source: #{source}, HTTP Code: #{http_code}"
@@ -68,30 +69,14 @@ File.open('logs_output.txt', 'w') do |file|
         end
       end
     end
-
-    # Extraire l'utilisation de la mémoire
-    if line.start_with?('MiB Mem :')
-      memory_match = line.match(/(\d+\.\d+) total.*(\d+\.\d+) free.*(\d+\.\d+) used/)
-      if memory_match
-        total_memory = memory_match[1].to_f
-        free_memory = memory_match[2].to_f
-        used_memory = memory_match[3].to_f
-        memory_usage_percentage = (used_memory / total_memory) * 100
-
-        if memory_usage_percentage > MEMORY_THRESHOLD
-          file.puts "Pic d'utilisation mémoire détecté: #{memory_usage_percentage.round(2)}%"
-        end
-      end
-    end
   end
 
   # Afficher les adresses IP avec des tentatives de connexion échouées répétées
- failed_attempts.each do |ip, count|
-    if count > 3 
+  failed_attempts.each do |ip, count|
+    if count > 3
       file.puts "Adresse IP: #{ip}, Nombre de tentatives échouées: #{count}"
     end
   end
 end
-
 
 client.close

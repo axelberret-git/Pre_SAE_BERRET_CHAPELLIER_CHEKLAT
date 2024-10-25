@@ -3,7 +3,9 @@ version: "3.8"
 services:
   # Serveur MariaDB
   db:
-    image: mariadb:10.5
+    build:
+      context: .
+      dockerfile: Dockerfile_DB  # Chemin vers votre Dockerfile
     container_name: mariadb_db
     restart: always
     environment:
@@ -16,6 +18,9 @@ services:
       - ./init:/docker-entrypoint-initdb.d
       - ./init/init_logs.cnf:/etc/mysql/conf.d/init_logs.cnf
       - ./logs/mysql:/var/log/mysql
+      - ./scripts_rb:/usr/src/app
+    working_dir: /usr/src/app
+
     networks:
       - wp-network
     healthcheck:
@@ -56,7 +61,6 @@ services:
       - ./simple_apache_data:/var/www/html
     networks:
       - wp-network
-
 
   # Service Ruby pour le stockage des logs
   log_storer:
@@ -108,4 +112,3 @@ volumes:
 networks:
   wp-network:
     driver: bridge
-

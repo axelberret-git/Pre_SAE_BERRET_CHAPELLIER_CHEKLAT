@@ -1,0 +1,31 @@
+# Dockerfile_DB
+
+# Utiliser l'image de base de MariaDB
+FROM mariadb:10.5
+
+# Installer les dépendances nécessaires pour Ruby
+RUN apt-get update && apt-get install -y \
+    ruby \
+    ruby-dev \
+    build-essential \
+    libmysqlclient-dev \
+    && gem install mysql2
+
+# Définir les variables d'environnement pour MariaDB
+ENV MYSQL_DATABASE=wordpress \
+    MYSQL_USER=wp_user \
+    MYSQL_PASSWORD=wp_password \
+    MYSQL_ROOT_PASSWORD=root
+
+# Volumes pour persistance des données et initialisation
+VOLUME /var/lib/mysql
+VOLUME /var/log/mysql
+
+WORKDIR /usr/srv/app
+
+# Copier les fichiers d'initialisation
+COPY ./init /docker-entrypoint-initdb.d
+COPY ./init/init_logs.cnf /etc/mysql/conf.d/init_logs.cnf
+
+# Commande par défaut (déjà définie dans l'image de MariaDB)
+CMD ["mysqld"]
