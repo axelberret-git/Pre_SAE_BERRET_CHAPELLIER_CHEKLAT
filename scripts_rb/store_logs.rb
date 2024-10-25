@@ -21,6 +21,20 @@ def insert_log(client, timestamp, source, log_type, message)
   client.query("INSERT INTO logs (timestamp, source, log_type, message) VALUES ('#{timestamp}', '#{source}', '#{log_type}', '#{client.escape(message)}')")
 end
 
+# Fonction pour traiter les logs d'Apache
+def process_apache_log(client, message)
+  timestamp = Time.now.utc.strftime('%Y-%m-%d %H:%M:%S')
+  log_type = message.include?('ERROR') ? 'ERROR' : 'INFO'
+  insert_log(client, timestamp, 'apache', log_type, message)
+end
+
+# Fonction pour traiter les logs de MySQL
+def process_mysql_log(client, message)
+  timestamp = Time.now.utc.strftime('%Y-%m-%d %H:%M:%S')
+  log_type = message.include?('Warning') ? 'WARNING' : 'INFO'
+  insert_log(client, timestamp, 'mariadb', log_type, message)
+end
+
 # Fonction pour écouter et traiter les logs entrants
 def listen_for_logs(client)
   server = TCPServer.new('0.0.0.0', 12345)  # Écoute sur le même port que le script de collecte
@@ -32,10 +46,12 @@ def listen_for_logs(client)
       data = data.chomp
       source, message = data.split(':', 2)  # Séparer la source du message
 
-      timestamp = Time.now.utc.strftime('%Y-%m-%d %H:%M:%S')
-      log_type = message.include?('ERROR') ? 'ERROR' : 'INFO'
-
-      insert_log(client, timestamp, source, log_type, message)
+      case source
+      when 'apache'
+        process_apache_log(client, message)
+      when 'mariadb'
+        process_mysql_log(client, message)
+      end
     else
       puts "Aucune donnée reçue, attente..."
     end
@@ -46,3 +62,4 @@ end
 
 # Lancer l'écoute des logs
 listen_for_logs(client)
+

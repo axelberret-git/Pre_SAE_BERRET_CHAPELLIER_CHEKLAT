@@ -3,7 +3,7 @@ require 'socket'
 # Chemins des fichiers de logs à surveiller
 LOG_FILES = {
   apache: '/var/log/apache2/access.log', 
-  mariadb: '/var/log/mysql/error.log'  
+  mariadb: '/var/log/mysql/error.log'
 }
 
 # Chemin pour le fichier de suivi des offsets
@@ -12,6 +12,7 @@ OFFSET_FILE = '/usr/src/app/log_offsets.txt'
 def monitor_logs
   puts "Démarrage de la surveillance des logs..."
   offsets = load_offsets
+
   LOG_FILES.each do |source, log_file|
     puts "Surveillance de #{log_file}..."
     File.open(log_file, 'r') do |file|
@@ -32,7 +33,6 @@ def monitor_logs
     end
   end
 end
-
 
 # Fonction pour envoyer un log à un serveur ou à un autre script
 def send_log(source, message)
@@ -59,3 +59,4 @@ end
 
 # Lancer la surveillance des logs
 monitor_logs
+
