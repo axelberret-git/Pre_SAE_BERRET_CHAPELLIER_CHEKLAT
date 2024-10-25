@@ -16,6 +16,12 @@ COPY ./scripts_rb/ .
 # Installer les gemmes nécessaires
 RUN gem install mysql2
 
+# Créer le dossier pour les logs MariaDB sans changer le propriétaire
+RUN mkdir -p /var/log/mysql
+
+# Copier le fichier de configuration de MariaDB pour les logs
+COPY my.cnf /etc/mysql/my.cnf
+
 # Commande par défaut pour exécuter le script de collecte des logs
 CMD ["ruby", "collect_logs.rb"]
 

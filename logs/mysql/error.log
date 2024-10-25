@@ -1,0 +1,42 @@
+2024-10-25  7:56:35 0 [Note] Starting MariaDB 10.5.26-MariaDB-ubu2004-log source revision 7a5b8bf0f5470a13094101f0a4bdfa9e1b9ded02 server_uid LZ5pYRSfMNmPrIPsQAN9Z/SoloA= as process 1
+2024-10-25  7:56:35 0 [Note] InnoDB: Uses event mutexes
+2024-10-25  7:56:35 0 [Note] InnoDB: Compressed tables use zlib 1.2.11
+2024-10-25  7:56:35 0 [Note] InnoDB: Number of pools: 1
+2024-10-25  7:56:35 0 [Note] InnoDB: Using crc32 + pclmulqdq instructions
+2024-10-25  7:56:35 0 [Note] mysqld: O_TMPFILE is not supported on /tmp (disabling future attempts)
+2024-10-25  7:56:35 0 [Note] InnoDB: Using Linux native AIO
+2024-10-25  7:56:35 0 [Note] InnoDB: Initializing buffer pool, total size = 134217728, chunk size = 134217728
+2024-10-25  7:56:35 0 [Note] InnoDB: Completed initialization of buffer pool
+2024-10-25  7:56:35 0 [Note] InnoDB: 128 rollback segments are active.
+2024-10-25  7:56:35 0 [Note] InnoDB: Creating shared tablespace for temporary tables
+2024-10-25  7:56:35 0 [Note] InnoDB: Setting file './ibtmp1' size to 12 MB. Physically writing the file full; Please wait ...
+2024-10-25  7:56:35 0 [Note] InnoDB: File './ibtmp1' size is now 12 MB.
+2024-10-25  7:56:35 0 [Note] InnoDB: 10.5.26 started; log sequence number 942110; transaction id 3850
+2024-10-25  7:56:35 0 [Note] Plugin 'FEEDBACK' is disabled.
+2024-10-25  7:56:35 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+2024-10-25  7:56:35 0 [Note] InnoDB: Buffer pool(s) load completed at 241025  7:56:35
+2024-10-25  7:56:35 0 [Note] Server socket created on IP: '::'.
+2024-10-25  7:56:35 0 [Note] Reading of all Master_info entries succeeded
+2024-10-25  7:56:35 0 [Note] Added new Master_info '' to hash table
+2024-10-25  7:56:35 0 [Note] mysqld: ready for connections.
+Version: '10.5.26-MariaDB-ubu2004-log'  socket: '/run/mysqld/mysqld.sock'  port: 3306  mariadb.org binary distribution
+2024-10-25  7:56:44 3 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2024-10-25  7:56:54 5 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2024-10-25  7:57:04 6 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2024-10-25  7:57:14 7 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2024-10-25  7:57:24 8 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2024-10-25  7:57:35 9 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2024-10-25  7:57:45 10 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2024-10-25  7:57:55 11 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2024-10-25  7:58:05 12 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2024-10-25  7:58:15 13 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2024-10-25  7:58:25 14 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2024-10-25  7:58:35 15 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2024-10-25  7:58:45 16 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2024-10-25  7:58:55 17 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2024-10-25  7:59:05 18 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2024-10-25  7:59:15 19 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2024-10-25  7:59:26 20 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2024-10-25  7:59:36 21 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2024-10-25  7:59:46 22 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2024-10-25  7:59:56 23 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
