@@ -9,17 +9,19 @@ LOG_FILES = {
 # Chemin pour le fichier de suivi des offsets
 OFFSET_FILE = '/usr/src/app/log_offsets.txt'
 
-# Fonction pour surveiller les fichiers de logs
 def monitor_logs
+  puts "Démarrage de la surveillance des logs..."
   offsets = load_offsets
   LOG_FILES.each do |source, log_file|
+    puts "Surveillance de #{log_file}..."
     File.open(log_file, 'r') do |file|
       file.seek(offsets[source].to_i, IO::SEEK_SET)
       loop do
         changes = file.read
         unless changes.empty?
+          puts "Logs collectés :"
           changes.each_line do |line|
-            # Envoyer chaque log au serveur de stockage
+            puts "Envoi de log : #{line.strip}"
             send_log(source, line.strip)
           end
           offsets[source] = file.pos
@@ -30,6 +32,7 @@ def monitor_logs
     end
   end
 end
+
 
 # Fonction pour envoyer un log à un serveur ou à un autre script
 def send_log(source, message)
